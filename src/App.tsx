@@ -1,25 +1,33 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
-
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import authRoutes from './Router/auth-routes';
+// import nonAuthRoutes from './Router/non-auth-routes';
+// import 'bootstrap/dist/css/bootstrap.min.css';
+// import SuspenseLayout from './Components/SuspenseLayout';
+import NavBar from './Components/Header';
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <BrowserRouter>
+       <NavBar />
+        <Routes>
+          {/* /* <Route  element= {<SuspenseLayout/>}> */}
+          {/* <Route element={<NavBar/>}> */}
+          <Route>
+            <Route>
+              {authRoutes.navigationRouts.map((data) => {
+                return <Route path={data.path} key={data.name} element={data.component} />;
+              })}
+            </Route>
+            {/* </Route> */}
+            {/* <Route>
+              {nonAuthRoutes.map((data) => {
+                return <Route path={data.path} element={data.component} key={data.name} />;
+              })}
+            </Route> */}
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </>
   );
 }
 
