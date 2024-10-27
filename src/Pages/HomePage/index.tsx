@@ -1,14 +1,22 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, startTransition } from 'react';
 import { Transition } from '@headlessui/react';
+import { useNavigate } from 'react-router-dom'; // Using useNavigate for React Router v6
 import backgroundImage from '../../assets/HomeBackGround1.jpg';
 
 const HomePage: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
+  const navigate = useNavigate(); // Use useNavigate hook
 
   // Trigger the animation on mount
   useEffect(() => {
     setIsVisible(true);
   }, []);
+
+  const handleNavigation = () => {
+    startTransition(() => {
+      navigate('/movies'); // Navigate to movies page
+    });
+  };
 
   return (
     <div
@@ -26,7 +34,10 @@ const HomePage: React.FC = () => {
           enterFrom="-translate-y-full opacity-0"
           enterTo="translate-y-0 opacity-100"
         >
-          <div className="p-8 rounded-xl bg-black bg-opacity-0 backdrop-md ">
+          <div
+            onClick={handleNavigation}
+            className="p-8 rounded-xl bg-black bg-opacity-0 backdrop-md cursor-pointer"
+          >
             <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold shadow-lg">
               <span className="text-white">Tamil Movie Recommendations</span>
             </h1>
