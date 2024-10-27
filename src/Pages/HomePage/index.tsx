@@ -1,31 +1,40 @@
-// import backgroundImage from '../assets/HomeBackground.jpg';
-import "./styles.css";
+import React, { useState, useEffect } from 'react';
+import { Transition } from '@headlessui/react';
+import backgroundImage from '../../assets/HomeBackGround1.jpg';
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Trigger the animation on mount
+  useEffect(() => {
+    setIsVisible(true);
+  }, []);
+
   return (
-    <div>
-      {/* <div 
-        className="relative h-screen bg-cover bg-center bg-no-repeat" 
-        style={{ backgroundImage: `url(${backgroundImage})` }}  // Ensure this path is correct
-      > */}
+    <div
+      className="relative min-h-screen bg-cover bg-center bg-no-repeat"
+      style={{ backgroundImage: `url(${backgroundImage})` }}
+    >
+      {/* Semi-transparent overlay */}
+      <div className="absolute inset-0 bg-black bg-opacity-70 backdrop-lg"></div>
 
-      <div 
-        className="relative h-screen bg-cover bg-center bg-no-repeat" 
-        style={{ backgroundColor: '#1D4ED8' }} 
-      >
-
-        {/* Black overlay with transparency */}
-        <div className="absolute inset-0 bg-black bg-opacity-50"></div>
-
-        {/* Content on top of the overlay */}
-        <div className="relative flex items-center justify-center h-full text-white">
-          <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold shadow-lg">
-            <span className="text-white"> Tamil Movie Recommendations</span>
-          </h1>
-        </div>
+      {/* Content on top of the overlay */}
+      <div className="relative flex flex-col items-center justify-center h-screen text-white">
+        <Transition
+          show={isVisible}
+          enter="transform transition ease-out duration-1000"
+          enterFrom="-translate-y-full opacity-0"
+          enterTo="translate-y-0 opacity-100"
+        >
+          <div className="p-8 rounded-xl bg-black bg-opacity-0 backdrop-md ">
+            <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold shadow-lg">
+              <span className="text-white">Tamil Movie Recommendations</span>
+            </h1>
+          </div>
+        </Transition>
       </div>
     </div>
   );
-}
+};
 
 export default HomePage;

@@ -1,105 +1,121 @@
-// const apiKey = '82bf8e7015e539b6b3839975fa59392a'; 
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import axios from 'axios';
 
-// Define TypeScript interfaces for the data
-interface Trailer {
+const TMDB_API_KEY = '82bf8e7015e539b6b3839975fa59392a';
+
+interface Movie {
+  id: number;
   title: string;
-  trailerUrl: string;
+  poster_path: string;
+  overview: string;
+  release_date: string;
 }
 
-interface MovieWithTrailers {
-  movie: string;
-  trailers: Trailer[];
-}
+const MovieSearch: React.FC = () => {
+  const [language, setLanguage] = useState('');
+  const [genre, setGenre] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [movies, setMovies] = useState<Movie[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-const MovieTrailers: React.FC = () => {
-  // Declare your API key here
-  const apiKey = '82bf8e7015e539b6b3839975fa59392a'; // Replace with your actual API key
+  const languages = [
+    { iso_639_1: 'kw', english_name: 'Cornish', name: '' },
+    { iso_639_1: 'ff', english_name: 'Fulah', name: 'Fulfulde' },
+    { iso_639_1: 'gn', english_name: 'Guarani', name: '' },
+    { iso_639_1: 'id', english_name: 'Indonesian', name: 'Bahasa indonesia' }
+    // Add more languages as needed
+  ];
 
-  const [recommendations, setRecommendations] = useState<MovieWithTrailers[]>([]);
-  const [language, setLanguage] = useState<string>('en-US'); // Default language to Tamil
-  const [inputLanguage, setInputLanguage] = useState<string>(''); // Language input from user
+  const genres = [
+    { id: 10770, name: 'TV Movie' },
+    { id: 53, name: 'Thriller' },
+    { id: 10752, name: 'War' },
+    { id: 37, name: 'Western' }
+    // Add more genres as needed
+  ];
 
-  // Fetch recommendations and trailers based on the selected language
-  useEffect(() => {
-    const fetchRecommendationsWithTrailers = async () => {
-      try {
-        // Fetch popular movies based on the selected language
-        const popularMoviesUrl = `https://api.themoviedb.org/3/movie/popular?language=${language}&page=1&api_key=${apiKey}`;
-        const popularMoviesResponse = await fetch(popularMoviesUrl);
-        const popularMoviesData = await popularMoviesResponse.json();
-
-        // Fetch trailers for each popular movie
-        const recommendationsWithTrailers = await Promise.all(
-          popularMoviesData.results.map(async (movie: any) => {
-            const trailerUrl = `https://api.themoviedb.org/3/movie/${movie.id}/videos?language=${language}&api_key=${apiKey}`;
-            const trailerResponse = await fetch(trailerUrl);
-            const trailerData = await trailerResponse.json();
-
-            const trailers = trailerData.results
-              .filter((video: any) => video.type === 'Trailer')
-              .map((trailer: any) => ({
-                title: movie.title,
-                trailerUrl: `https://www.youtube.com/embed/${trailer.key}`,
-              }));
-
-            return { movie: movie.title, trailers };
-          })
-        );
-
-        setRecommendations(recommendationsWithTrailers);
-      } catch (error) {
-        console.error('Error fetching recommendations or trailers:', error);
+  const fetchMovies = async () => {
+    try {
+      setLoading(true);
+      setError('');
+      let url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}`;
+      if (searchQuery) {
+        url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${searchQuery}`;
+      } else {
+        if (language) {
+          url += `&with_original_language=${language}`;
+        }
+        if (genre) {
+          url += `&with_genres=${genre}`;
+        }
       }
-    };
-
-    // Only fetch if inputLanguage is not empty
-    if (inputLanguage) {
-      setLanguage(inputLanguage);
-      fetchRecommendationsWithTrailers();
+      const response = await axios.get(url);
+      setMovies(response.data.results);
+    } catch (err) {
+      setError('Failed to fetch movies. Please try again.');
+    } finally {
+      setLoading(false);
     }
-  }, [apiKey, inputLanguage]);
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    fetchMovies();
+  };
 
   return (
-    <div className="flex flex-col items-center">
-      <h1 className="text-3xl font-bold mb-4">Recommended Movies and Trailers</h1>
-
-      {/* User Input for Language */}
-      <div className="flex flex-col items-center mb-6">
-        <label htmlFor="language-input" className="mb-2">Enter Language Code (e.g., ta): </label>
+    <div className="container mx-auto p-4">
+      <h1 className="text-3xl font-bold mb-4">Movie Search</h1>
+      <form onSubmit={handleSearch} className="mb-4">
         <input
           type="text"
-          id="language-input"
-          className="border border-gray-300 rounded px-4 py-2 mb-2"
-          value={inputLanguage}
-          onChange={(e) => setInputLanguage(e.target.value)}
-          placeholder="Type language code"
+          placeholder="Search for a movie..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="border rounded py-2 px-4 mr-2"
         />
-        <button 
-          className="bg-blue-500 text-white rounded px-4 py-2 hover:bg-blue-600"
-          onClick={() => setLanguage(inputLanguage)}
+        <select
+          value={language}
+          onChange={(e) => setLanguage(e.target.value)}
+          className="border rounded py-2 px-4 mr-2"
         >
-          Submit
-        </button>
-      </div>
-
-      <div id="movies-container" className="w-full max-w-2xl">
-        {recommendations.map((movie, movieIndex) => (
-          <div key={movieIndex} className="mb-6">
-            <h2 className="text-xl font-semibold">{movie.movie}</h2>
-            {movie.trailers.map((trailer, trailerIndex) => (
-              <div key={trailerIndex} style={{ marginBottom: '20px' }}>
-                <iframe
-                  width="560"
-                  height="315"
-                  src={trailer.trailerUrl}
-                  title={`${movie.movie} Trailer ${trailerIndex + 1}`}
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
-            ))}
+          <option value="">Select Language</option>
+          {languages.map((lang) => (
+            <option key={lang.iso_639_1} value={lang.iso_639_1}>
+              {lang.english_name}
+            </option>
+          ))}
+        </select>
+        <select
+          value={genre}
+          onChange={(e) => setGenre(e.target.value)}
+          className="border rounded py-2 px-4 mr-2"
+        >
+          <option value="">Select Genre</option>
+          {genres.map((g) => (
+            <option key={g.id} value={g.id}>
+              {g.name}
+            </option>
+          ))}
+        </select>
+        <button type="submit" className="bg-red-500 text-white py-2 px-4 rounded">Search</button>
+      </form>
+      {loading && <p>Loading...</p>}
+      {error && <p className="text-red-500">{error}</p>}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {movies.map((movie) => (
+          <div key={movie.id} className="bg-white p-4 rounded shadow">
+            <img
+              src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+              alt={movie.title}
+              className="w-full h-64 object-cover rounded"
+            />
+            <h2 className="text-lg font-semibold mt-4">{movie.title}</h2>
+            <p className="text-sm text-gray-600 mt-2">
+              {movie.overview ? movie.overview.substring(0, 100) + '...' : 'No description available'}
+            </p>
+            <p className="text-gray-500 mt-1">Release Date: {movie.release_date || 'N/A'}</p>
           </div>
         ))}
       </div>
@@ -107,4 +123,4 @@ const MovieTrailers: React.FC = () => {
   );
 };
 
-export default MovieTrailers;
+export default MovieSearch;
