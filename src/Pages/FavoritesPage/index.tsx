@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaHeart } from 'react-icons/fa';
+import { FaHeart } from 'react-icons/fa'; // Import heart icon
 import languages from '../../data/languages';
 import genres from '../../data/genres';
 import image from '../../assets/optical-fiber-background.jpg';
@@ -24,7 +24,7 @@ const MovieSearch: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [hoveredMovieId, setHoveredMovieId] = useState<number | null>(null);
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<number[]>([]); // Manage favorites
 
   const fetchMovies = async () => {
     try {
@@ -73,8 +73,8 @@ const MovieSearch: React.FC = () => {
   const toggleFavorite = (movieId: number) => {
     setFavorites((prevFavorites) =>
       prevFavorites.includes(movieId)
-        ? prevFavorites.filter((id) => id !== movieId)
-        : [...prevFavorites, movieId]
+        ? prevFavorites.filter((id) => id !== movieId) // Remove from favorites
+        : [...prevFavorites, movieId] // Add to favorites
     );
   };
 
@@ -123,15 +123,12 @@ const MovieSearch: React.FC = () => {
         </div>
         
         {/* Movie List Container */}
-        <div className="overflow-y-auto h-[calc(850px)] max-h-[80vh] max-w-20xl"> {/* Adjust height as needed */}
+        <div className="overflow-y-auto h-[calc(850px)] max-h-[80vh] max-w-20xl">
           {loading && <p className="text-center">Loading...</p>}
           {error && <p className="text-red-500 text-center">{error}</p>}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {movies.map((movie) => (
-              <div
-                key={movie.id}
-                className="bg-white p-4 rounded shadow relative flex flex-col justify-between h-full"
-              >
+              <div key={movie.id} className="bg-white p-4 rounded shadow relative flex flex-col justify-between h-full">
                 <img
                   src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                   alt={movie.title}
@@ -142,14 +139,15 @@ const MovieSearch: React.FC = () => {
                 <p className="text-sm text-gray-700 truncate">{movie.overview}</p>
                 <p className="text-sm text-gray-500 mt-2">Release Date: {movie.release_date}</p>
 
-                <button
+                {/* Favorite Heart Icon */}
+                <div
+                  className={`absolute bottom-2 right-2 cursor-pointer ${
+                    favorites.includes(movie.id) ? 'text-red-500' : 'text-gray-400'
+                  }`}
                   onClick={() => toggleFavorite(movie.id)}
-                  className="absolute bottom-4 right-4"
                 >
-                  <FaHeart
-                    className={`text-2xl ${favorites.includes(movie.id) ? 'text-red-500' : 'text-gray-600'}`}
-                  />
-                </button>
+                  <FaHeart size={3000} /> {/* Increased icon size for better visibility */}
+                </div>
 
                 {hoveredMovieId === movie.id && movie.trailerUrl && (
                   <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center">
