@@ -4,8 +4,8 @@ import { lazy } from 'react';
 // Importing routes
 const Home = lazy(() => import('../Pages/HomePage'));
 const Movies = lazy(() => import('../Pages/MoviesPage'));
-// const Search = lazy(() => import('../Pages/Search'));
-// const Cart = lazy(() => import('../Pages/CartPage'));
+const Login = lazy(() => import('../Pages/LoginPage'));
+const Register = lazy(() => import('../Pages/RegisterPage'));
 
 export const navigationRouts = [
 {
@@ -18,16 +18,16 @@ name: 'Movies',
 path: '/movies',
 component: <Movies />
 },
-// {
-//     name: 'Search',
-//     path: '/search',
-//     component: <Search />
-// },
-// {
-//     name: 'Search',
-//     path: '/cart',
-//     component: <Cart />
-// }
+{
+    name: 'Search',
+    path: '/login',
+    component: <Login />
+},
+{
+    name: 'Search',
+    path: '/register',
+    component: <Register />
+}
 ];
 
 export default {
