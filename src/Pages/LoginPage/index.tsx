@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
+import { useNavigate } from 'react-router-dom';
 
 type LoginValues = {
     email: string;
@@ -19,6 +20,8 @@ const validationSchema = Yup.object().shape({
 
 const LoginForm: React.FC = () => {
     const [submittedData, setSubmittedData] = useState<LoginValues[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const navigate = useNavigate();
 
     const onSubmit = async (values: LoginValues) => {
         try {
@@ -35,12 +38,17 @@ const LoginForm: React.FC = () => {
                 console.log('Logged in User:', data);
                 setSubmittedData([...submittedData, values]);
                 formik.resetForm();
+                setError(null);
+                alert('Login Successful');
+                navigate('/');
             } else {
                 const errorData = await response.json();
                 console.error('Login error:', errorData.message);
+                setError(errorData.message || 'Login failed');
             }
         } catch (error) {
             console.error('An error occurred:', error);
+            setError('An unexpected error occurred');
         }
     };
 
@@ -54,6 +62,7 @@ const LoginForm: React.FC = () => {
         <div className="flex items-center justify-center h-screen bg-orange-600">
             <form onSubmit={formik.handleSubmit} className="bg-white p-6 rounded-lg shadow-lg w-96">
                 <h2 className="text-2xl mb-4 text-center">Login</h2>
+                {error && <div className="text-red-600 mb-4">{error}</div>}
                 <div>
                     <label className="block mb-2 text-sm font-bold" htmlFor="email">Email</label>
                     <input
