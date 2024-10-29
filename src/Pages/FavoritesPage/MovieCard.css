@@ -1,0 +1,32 @@
+.movie-list {
+    display: flex;
+    gap: 16px;
+}
+
+.movie-card {
+    padding-top: 100;
+    margin-top: 70px;
+    position: relative;
+    width: 200px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.movie-image {
+    width: 100%;
+    height: auto;
+}
+
+.movie-info {
+    padding: 16px;
+}
+
+.favorite-icon {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    font-size: 24px;
+    cursor: pointer;
+}

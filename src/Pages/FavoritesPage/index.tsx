@@ -1,175 +1,65 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { FaHeart } from 'react-icons/fa'; // Import heart icon
-import languages from '../../data/languages';
-import genres from '../../data/genres';
-import image from '../../assets/optical-fiber-background.jpg';
-
-const TMDB_API_KEY = '82bf8e7015e539b6b3839975fa59392a';
+import React, { useState } from 'react';
+import './MovieCard.css'; // Assuming you're using CSS for styling
 
 interface Movie {
-  id: number;
-  title: string;
-  poster_path: string;
-  overview: string;
-  release_date: string;
-  trailerUrl?: string;
+    id: number;
+    title: string;
+    description: string;
+    releaseDate: string;
+    imageUrl: string;
 }
 
-const MovieSearch: React.FC = () => {
-  const [language, setLanguage] = useState('');
-  const [genre, setGenre] = useState('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [movies, setMovies] = useState<Movie[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
-  const [hoveredMovieId, setHoveredMovieId] = useState<number | null>(null);
-  const [favorites, setFavorites] = useState<number[]>([]); // Manage favorites
+const MovieCard: React.FC<Movie> = ({ id, title, description, releaseDate, imageUrl }) => {
+    const [isFavorited, setIsFavorited] = useState(false);
 
-  const fetchMovies = async () => {
-    try {
-      setLoading(true);
-      setError('');
+    const toggleFavorite = () => {
+        setIsFavorited(!isFavorited);
+    };
 
-      let url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc`;
-
-      if (searchQuery) {
-        url = `https://api.themoviedb.org/3/search/movie?api_key=${TMDB_API_KEY}&query=${searchQuery}`;
-      } else {
-        if (language) url += `&with_original_language=${language}`;
-        if (genre) url += `&with_genres=${genre}`;
-      }
-
-      const response = await axios.get(url);
-      const moviesWithTrailers = await Promise.all(
-        response.data.results.map(async (movie: Movie) => {
-          const trailerResponse = await axios.get(
-            `https://api.themoviedb.org/3/movie/${movie.id}/videos?api_key=${TMDB_API_KEY}`
-          );
-          const trailer = trailerResponse.data.results.find((video: any) => video.type === 'Trailer');
-          return {
-            ...movie,
-            trailerUrl: trailer ? `https://www.youtube.com/embed/${trailer.key}` : null,
-          };
-        })
-      );
-      setMovies(moviesWithTrailers);
-    } catch (err) {
-      setError('Failed to fetch movies. Please try again.');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchMovies();
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchMovies();
-  };
-
-  const toggleFavorite = (movieId: number) => {
-    setFavorites((prevFavorites) =>
-      prevFavorites.includes(movieId)
-        ? prevFavorites.filter((id) => id !== movieId) // Remove from favorites
-        : [...prevFavorites, movieId] // Add to favorites
+    return (
+        <div className="movie-card">
+            <img src={imageUrl} alt={title} className="movie-image" />
+            <div className="movie-info">
+                <h3>{title}</h3>
+                <p>{description}</p>
+                <p><strong>Release Date:</strong> {releaseDate}</p>
+            </div>
+        </div>
     );
-  };
-
-  return (
-    <div className="relative min-h-screen bg-cover bg-center" style={{ backgroundImage: `url(${image})` }}>
-      <div className="absolute inset-0 bg-black opacity-10"></div>
-      <div className="relative container mx-auto p-4 max-w-[2000px] backdrop-blur-lg bg-white bg-opacity-10 rounded-lg shadow-lg">
-        
-        {/* Static Search Form */}
-        <div className="mb-4 bg-white bg-opacity-70 p-4 rounded-lg shadow sticky top-0 z-10">
-          <h1 className="text-3xl font-bold mb-4 text-center">Movie Search</h1>
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center gap-2">
-            <input
-              type="text"
-              placeholder="Search for a movie..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="border rounded py-2 px-4 flex-grow"
-            />
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="border rounded py-2 px-4"
-            >
-              <option value="">Select Language</option>
-              {languages.map((lang) => (
-                <option key={lang.iso_639_1} value={lang.iso_639_1}>
-                  {lang.english_name}
-                </option>
-              ))}
-            </select>
-            <select
-              value={genre}
-              onChange={(e) => setGenre(e.target.value)}
-              className="border rounded py-2 px-4"
-            >
-              <option value="">Select Genre</option>
-              {genres.map((g) => (
-                <option key={g.id} value={g.id}>
-                  {g.name}
-                </option>
-              ))}
-            </select>
-            <button type="submit" className="bg-red-500 text-white py-2 px-4 rounded">Search</button>
-          </form>
-        </div>
-        
-        {/* Movie List Container */}
-        <div className="overflow-y-auto h-[calc(850px)] max-h-[80vh] max-w-20xl">
-          {loading && <p className="text-center">Loading...</p>}
-          {error && <p className="text-red-500 text-center">{error}</p>}
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-            {movies.map((movie) => (
-              <div key={movie.id} className="bg-white p-4 rounded shadow relative flex flex-col justify-between h-full">
-                <img
-                  src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                  alt={movie.title}
-                  className="w-full h-64 object-cover mb-4 rounded"
-                  onClick={() => setHoveredMovieId(movie.id)}
-                />
-                <h2 className="text-xl font-bold mb-2">{movie.title}</h2>
-                <p className="text-sm text-gray-700 truncate">{movie.overview}</p>
-                <p className="text-sm text-gray-500 mt-2">Release Date: {movie.release_date}</p>
-
-                {/* Favorite Heart Icon */}
-                <div
-                  className={`absolute bottom-2 right-2 cursor-pointer ${
-                    favorites.includes(movie.id) ? 'text-red-500' : 'text-gray-400'
-                  }`}
-                  onClick={() => toggleFavorite(movie.id)}
-                >
-                  <FaHeart size={3000} /> {/* Increased icon size for better visibility */}
-                </div>
-
-                {hoveredMovieId === movie.id && movie.trailerUrl && (
-                  <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center">
-                    <iframe
-                      width="100%"
-                      height="315"
-                      src={movie.trailerUrl}
-                      title={`${movie.title} Trailer`}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="rounded"
-                    ></iframe>
-                  </div>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
 };
 
-export default MovieSearch;
+const MovieList: React.FC = () => {
+    const movies: Movie[] = [
+        {
+            id: 1,
+            title: "The Wild Robot",
+            description: "After a shipwreck, an intelligent robot called Roz is ...",
+            releaseDate: "2024-09-12",
+            imageUrl: "https://image.tmdb.org/t/p/w500//wTnV3PCVW5O92JMrFvvrRcV39RU.jpg",
+        },
+        {
+            id: 2,
+            title: "Venom: The Last Dance",
+            description: "Eddie and Venom are on the run. Hunted by both ...",
+            releaseDate: "2024-10-22",
+            imageUrl: "https://image.tmdb.org/t/p/w500//63xYQj1BwRFielxsBDXvHIJyXVm.jpg",
+        },
+    ];
+
+    return (
+        <div className="movie-list">
+            {movies.map((movie) => (
+                <MovieCard 
+                    key={movie.id} 
+                    id={movie.id} 
+                    title={movie.title} 
+                    description={movie.description} 
+                    releaseDate={movie.releaseDate} 
+                    imageUrl={movie.imageUrl} 
+                />
+            ))}
+        </div>
+    );
+};
+
+export default MovieList;

@@ -24,7 +24,9 @@ const MovieSearch: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [hoveredMovieId, setHoveredMovieId] = useState<number | null>(null);
-  const [favorites, setFavorites] = useState<number[]>([]);
+  const [favorites, setFavorites] = useState<number[]>(() => {
+    return JSON.parse(localStorage.getItem('favorites') || '[]');
+  });
 
   const fetchMovies = async () => {
     try {
@@ -71,11 +73,12 @@ const MovieSearch: React.FC = () => {
   };
 
   const toggleFavorite = (movieId: number) => {
-    setFavorites((prevFavorites) =>
-      prevFavorites.includes(movieId)
-        ? prevFavorites.filter((id) => id !== movieId)
-        : [...prevFavorites, movieId]
-    );
+    const updatedFavorites = favorites.includes(movieId)
+      ? favorites.filter((id) => id !== movieId)
+      : [...favorites, movieId];
+
+    setFavorites(updatedFavorites);
+    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
   };
 
   return (
@@ -123,7 +126,7 @@ const MovieSearch: React.FC = () => {
         </div>
         
         {/* Movie List Container */}
-        <div className="overflow-y-auto h-[calc(850px)] max-h-[80vh] max-w-20xl"> {/* Adjust height as needed */}
+        <div className="overflow-y-auto h-[calc(850px)] max-h-[80vh] max-w-20xl">
           {loading && <p className="text-center">Loading...</p>}
           {error && <p className="text-red-500 text-center">{error}</p>}
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
@@ -140,29 +143,33 @@ const MovieSearch: React.FC = () => {
                 />
                 <h2 className="text-xl font-bold mb-2">{movie.title}</h2>
                 <p className="text-sm text-gray-700 truncate">{movie.overview}</p>
-                <p className="text-sm text-gray-500 mt-2">Release Date: {movie.release_date}</p>
+                <p className="text-sm text-gray-500">Release Date: {movie.release_date}</p>
 
-                <button
-                  onClick={() => toggleFavorite(movie.id)}
-                  className="absolute bottom-4 right-4"
-                >
+                <div className="absolute top-2 right-2" onClick={() => toggleFavorite(movie.id)}>
                   <FaHeart
-                    className={`text-2xl ${favorites.includes(movie.id) ? 'text-red-500' : 'text-gray-600'}`}
+                    className={`text-2xl ${favorites.includes(movie.id) ? 'text-red-500' : 'text-gray-400'}`}
                   />
-                </button>
-
+                </div>
+                
                 {hoveredMovieId === movie.id && movie.trailerUrl && (
-                  <div className="absolute inset-0 bg-black bg-opacity-90 flex items-center justify-center">
-                    <iframe
-                      width="100%"
-                      height="315"
-                      src={movie.trailerUrl}
-                      title={`${movie.title} Trailer`}
-                      frameBorder="0"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      className="rounded"
-                    ></iframe>
+                  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <div className="w-full max-w-lg bg-white rounded p-4 relative">
+                      <iframe
+                        width="100%"
+                        height="315"
+                        src={movie.trailerUrl}
+                        title={`${movie.title} Trailer`}
+                        frameBorder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                        allowFullScreen
+                      ></iframe>
+                      <button
+                        onClick={() => setHoveredMovieId(null)}
+                        className="absolute top-2 right-2 text-white bg-red-500 p-1 rounded-full"
+                      >
+                        X
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>

@@ -39,7 +39,7 @@ const HomePage: React.FC = () => {
             className="p-8 rounded-xl bg-black bg-opacity-0 backdrop-md cursor-pointer"
           >
             <h1 className="text-4xl md:text-6xl lg:text-8xl font-bold shadow-lg">
-              <span className="text-white">Tamil Movie Recommendations</span>
+              <span className="text-white">Movie Recommendations</span>
             </h1>
           </div>
         </Transition>

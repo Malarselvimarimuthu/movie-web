@@ -6,6 +6,7 @@ const Home = lazy(() => import('../Pages/HomePage'));
 const Movies = lazy(() => import('../Pages/MoviesPage'));
 const Login = lazy(() => import('../Pages/LoginPage'));
 const Register = lazy(() => import('../Pages/RegisterPage'));
+const Favorites = lazy(() => import('../Pages/FavoritesPage'));
 
 export const navigationRouts = [
 {
@@ -27,6 +28,11 @@ component: <Movies />
     name: 'Search',
     path: '/register',
     component: <Register />
+},
+{
+    name: 'Search',
+    path: '/favourites',
+    component: <Favorites />
 }
 ];
 

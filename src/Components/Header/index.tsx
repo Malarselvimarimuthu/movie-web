@@ -21,7 +21,7 @@ const Navbar: React.FC = () => {
             <Link to="/movies">
               <button className="text-white text-4xl hover:text-red-600">Movies</button>
             </Link>
-            <Link to="/favorites">
+            <Link to="/favourites">
               <button className="text-white text-4xl hover:text-red-600">Favorites</button>
             </Link>
             <Link to="/login">
