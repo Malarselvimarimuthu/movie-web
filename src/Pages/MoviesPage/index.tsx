@@ -17,6 +17,7 @@ interface Movie {
 }
 
 const MovieSearch: React.FC = () => {
+  const [userId, setUserId] = useState<string | null>(null);
   const [language, setLanguage] = useState('');
   const [genre, setGenre] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,15 +25,18 @@ const MovieSearch: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [hoveredMovieId, setHoveredMovieId] = useState<number | null>(null);
-  const [favorites, setFavorites] = useState<number[]>(() => {
-    return JSON.parse(localStorage.getItem('favorites') || '[]');
-  });
+  const [favorites, setFavorites] = useState<number[]>([]);
+
+  useEffect(() => {
+    // Retrieve userId from local storage
+    const storedUserId = localStorage.getItem('userId');
+    setUserId(storedUserId); // Set the userId state
+  }, []);
 
   const fetchMovies = async () => {
     try {
       setLoading(true);
       setError('');
-
       let url = `https://api.themoviedb.org/3/discover/movie?api_key=${TMDB_API_KEY}&sort_by=popularity.desc`;
 
       if (searchQuery) {
@@ -63,23 +67,46 @@ const MovieSearch: React.FC = () => {
     }
   };
 
+  const fetchFavorites = async () => {
+    if (!userId) return; // Ensure userId is available before fetching favorites
+    try {
+      const response = await axios.get(`http://localhost:8080/api/favourites?userId=${userId}`);
+      setFavorites(response.data.map((fav: any) => fav.movieId));
+    } catch (error) {
+      console.error('Error fetching favorites', error);
+    }
+  };
+
+  const toggleFavorite = async (movie: Movie) => {
+    if (!userId) return; // Ensure userId is available before toggling favorites
+    try {
+      const isFavorite = favorites.includes(movie.id);
+
+      if (isFavorite) {
+        await axios.delete(`http://localhost:8080/api/favourites`, {
+          params: { userId, movieId: movie.id },
+        });
+        setFavorites(favorites.filter((id) => id !== movie.id));
+      } else {
+        await axios.post('http://localhost:8080/api/favourites', {
+          userId,
+          movieId: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          overview: movie.overview,
+          release_date: movie.release_date,
+        });
+        setFavorites([...favorites, movie.id]);
+      }
+    } catch (error) {
+      console.error('Error toggling favorite', error);
+    }
+  };
+
   useEffect(() => {
     fetchMovies();
-  }, []);
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    fetchMovies();
-  };
-
-  const toggleFavorite = (movieId: number) => {
-    const updatedFavorites = favorites.includes(movieId)
-      ? favorites.filter((id) => id !== movieId)
-      : [...favorites, movieId];
-
-    setFavorites(updatedFavorites);
-    localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
-  };
+    fetchFavorites();
+  }, [userId, searchQuery, language, genre]); // Added dependencies to refetch on changes
 
   return (
     <div className="relative min-h-screen bg-cover bg-center" style={{ backgroundImage: `url(${image})` }}>
@@ -89,7 +116,7 @@ const MovieSearch: React.FC = () => {
         {/* Static Search Form */}
         <div className="mb-4 bg-white bg-opacity-70 p-4 rounded-lg shadow sticky top-0 z-10">
           <h1 className="text-3xl font-bold mb-4 text-center">Movie Search</h1>
-          <form onSubmit={handleSearch} className="flex flex-col sm:flex-row items-center gap-2">
+          <form onSubmit={(e) => { e.preventDefault(); fetchMovies(); }} className="flex flex-col sm:flex-row items-center gap-2">
             <input
               type="text"
               placeholder="Search for a movie..."
@@ -145,7 +172,11 @@ const MovieSearch: React.FC = () => {
                 <p className="text-sm text-gray-700 truncate">{movie.overview}</p>
                 <p className="text-sm text-gray-500">Release Date: {movie.release_date}</p>
 
-                <div className="absolute top-2 right-2" onClick={() => toggleFavorite(movie.id)}>
+                {/* Heart Icon positioned at bottom-right */}
+                <div
+                  className="absolute bottom-2 right-2 cursor-pointer"
+                  onClick={() => toggleFavorite(movie)}
+                >
                   <FaHeart
                     className={`text-2xl ${favorites.includes(movie.id) ? 'text-red-500' : 'text-gray-400'}`}
                   />

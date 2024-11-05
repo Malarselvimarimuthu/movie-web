@@ -17,7 +17,7 @@ component: <Home />
 {
 name: 'Movies',
 path: '/movies',
-component: <Movies />
+component: <Movies   />
 },
 {
     name: 'Search',
@@ -32,7 +32,7 @@ component: <Movies />
 {
     name: 'Search',
     path: '/favourites',
-    component: <Favorites />
+    component: <Favorites  />
 }
 ];
 

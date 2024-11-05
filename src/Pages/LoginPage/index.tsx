@@ -36,6 +36,12 @@ const LoginForm: React.FC = () => {
             if (response.ok) {
                 const data = await response.json();
                 console.log('Logged in User:', data);
+                //Data contains message and userID
+                const userId = data.userId;
+                localStorage.setItem('userId',userId); //Having userid in local Storage 
+                console.log("LocalStorage:",localStorage.getItem('userId'));
+
+                
                 setSubmittedData([...submittedData, values]);
                 formik.resetForm();
                 setError(null);
