@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { FaHeart } from 'react-icons/fa';
+import { FaCommentDots } from 'react-icons/fa';
 import languages from '../../data/languages';
 import genres from '../../data/genres';
 import image from '../../assets/optical-fiber-background.jpg';
@@ -160,17 +161,23 @@ const MovieSearch: React.FC = () => {
             {movies.map((movie) => (
               <div
                 key={movie.id}
-                className="bg-white p-4 rounded shadow relative flex flex-col justify-between h-full"
+                className="bg-white p-3 rounded shadow relative flex flex-col justify-between h-full"
               >
                 <img
                   src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                   alt={movie.title}
-                  className="w-full h-64 object-cover mb-4 rounded"
+                  className="w-full h-full object-cover mb-2 rounded"
                   onClick={() => setHoveredMovieId(movie.id)}
                 />
                 <h2 className="text-xl font-bold mb-2">{movie.title}</h2>
-                <p className="text-sm text-gray-700 truncate">{movie.overview}</p>
-                <p className="text-sm text-gray-500">Release Date: {movie.release_date}</p>
+                {/* Movie Description with Scroll */}
+                <p className="text-sm text-gray-700 overflow-y-auto h-24 mb-2">{movie.overview}</p>
+
+                <p className="text-sm text-gray-700 font-bold">Release Date: {movie.release_date}</p>
+
+                <div className="absolute bottom-2 right-10 cursor-pointer">
+                <FaCommentDots className="text-2xl text-gray-500 hover:text-gray-800" />
+                </div>
 
                 {/* Heart Icon positioned at bottom-right */}
                 <div

@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaBars, FaUserCircle } from 'react-icons/fa'; // Importing icons
+import { FaBars, FaUserCircle } from 'react-icons/fa';
 import { useUser } from '../../context/UserContext';
 import './style.css';
 
@@ -11,12 +11,6 @@ const Navbar: React.FC = () => {
   const toggleMenu = () => {
     setIsOpen(!isOpen);
   };
-
-  useEffect(() => {
-    if (isLoggedIn) {
-      setIsOpen(false); // Close menu when user logs in
-    }
-  }, [isLoggedIn]);
 
   return (
     <div className="fixed w-full top-0 bg-black z-50">
