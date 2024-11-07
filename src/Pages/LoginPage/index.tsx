@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
+import image from '../../assets/blurry-developing-photos-darkroom.jpg';
 
 type LoginValues = {
     email: string;
@@ -65,7 +66,8 @@ const LoginForm: React.FC = () => {
     });
 
     return (
-        <div className="flex items-center justify-center h-screen bg-orange-600">
+        <div className="relative min-h-screen bg-cover bg-center" style={{ backgroundImage: `url(${image})` }}>
+        <div className="flex items-center justify-center h-screen ">
             <form onSubmit={formik.handleSubmit} className="bg-white p-6 rounded-lg shadow-lg w-96">
                 <h2 className="text-2xl mb-4 text-center">Login</h2>
                 {error && <div className="text-red-600 mb-4">{error}</div>}
@@ -102,6 +104,7 @@ const LoginForm: React.FC = () => {
                     <span className="text-sm"><a href="/register" className="text-blue-600 hover:underline">Don't have an account? Register</a></span>
                 </div>
             </form>
+        </div>
         </div>
     );
 }

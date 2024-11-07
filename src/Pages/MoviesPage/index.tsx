@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { FaHeart } from 'react-icons/fa';
-import { FaCommentDots } from 'react-icons/fa';
+import { FaHeart, FaCommentDots, FaPlay } from 'react-icons/fa'; // Added FaPlay icon for the trailer button
 import languages from '../../data/languages';
 import genres from '../../data/genres';
 import image from '../../assets/optical-fiber-background.jpg';
@@ -17,8 +16,15 @@ interface Movie {
   trailerUrl?: string;
 }
 
+interface Command {
+  username: string;
+  command: string;
+  movieId: number;
+}
+
 const MovieSearch: React.FC = () => {
   const [userId, setUserId] = useState<string | null>(null);
+  const [username, setUsername] = useState<string | null>(null);
   const [language, setLanguage] = useState('');
   const [genre, setGenre] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
@@ -27,12 +33,26 @@ const MovieSearch: React.FC = () => {
   const [error, setError] = useState('');
   const [hoveredMovieId, setHoveredMovieId] = useState<number | null>(null);
   const [favorites, setFavorites] = useState<number[]>([]);
+  const [activeCommandMovieId, setActiveCommandMovieId] = useState<number | null>(null);
+  const [allCommands, setAllCommands] = useState<Command[]>([]);
+  const [newCommand, setNewCommand] = useState<string>('');
 
   useEffect(() => {
-    // Retrieve userId from local storage
     const storedUserId = localStorage.getItem('userId');
-    setUserId(storedUserId); // Set the userId state
+    if (storedUserId) {
+      setUserId(storedUserId);
+      fetchUsername(storedUserId);
+    }
   }, []);
+
+  const fetchUsername = async (userId: string) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/users/getname/${userId}`);
+      setUsername(response.data.username);
+    } catch (error) {
+      console.error('Error fetching username:', error);
+    }
+  };
 
   const fetchMovies = async () => {
     try {
@@ -69,7 +89,7 @@ const MovieSearch: React.FC = () => {
   };
 
   const fetchFavorites = async () => {
-    if (!userId) return; // Ensure userId is available before fetching favorites
+    if (!userId) return;
     try {
       const response = await axios.get(`http://localhost:8080/api/favourites?userId=${userId}`);
       setFavorites(response.data.map((fav: any) => fav.movieId));
@@ -79,7 +99,10 @@ const MovieSearch: React.FC = () => {
   };
 
   const toggleFavorite = async (movie: Movie) => {
-    if (!userId) return; // Ensure userId is available before toggling favorites
+    if (!userId){
+      alert("Login to Access Favourites")
+      return;
+    };
     try {
       const isFavorite = favorites.includes(movie.id);
 
@@ -104,17 +127,41 @@ const MovieSearch: React.FC = () => {
     }
   };
 
+  const fetchAllCommands = async (movieId: number) => {
+    try {
+      const response = await axios.get(`http://localhost:8080/api/feedback/getfeedback?movieId=${movieId}`);
+      setAllCommands(response.data);
+    } catch (error) {
+      console.error('Error fetching commands:', error);
+    }
+  };
+
+  const handleCommandSubmit = async () => {
+    if (!userId || !username || !newCommand || activeCommandMovieId === null) return;
+    try {
+      await axios.post('http://localhost:8080/api/feedback/submit', {
+        userId,
+        username,
+        command: newCommand,
+        movieId: activeCommandMovieId,
+      });
+      setNewCommand('');
+      fetchAllCommands(activeCommandMovieId); // Refresh commands for this movie
+    } catch (error) {
+      console.error('Error submitting command:', error);
+    }
+  };
+
   useEffect(() => {
     fetchMovies();
     fetchFavorites();
-  }, [userId, searchQuery, language, genre]); // Added dependencies to refetch on changes
+  }, [userId, searchQuery, language, genre]);
 
   return (
     <div className="relative min-h-screen bg-cover bg-center" style={{ backgroundImage: `url(${image})` }}>
       <div className="absolute inset-0 bg-black opacity-10"></div>
       <div className="relative container mx-auto p-4 max-w-[2000px] backdrop-blur-lg bg-white bg-opacity-10 rounded-lg shadow-lg">
         
-        {/* Static Search Form */}
         <div className="mb-4 bg-white bg-opacity-70 p-4 rounded-lg shadow sticky top-0 z-10">
           <h1 className="text-3xl font-bold mb-4 text-center">Movie Search</h1>
           <form onSubmit={(e) => { e.preventDefault(); fetchMovies(); }} className="flex flex-col sm:flex-row items-center gap-2">
@@ -153,7 +200,6 @@ const MovieSearch: React.FC = () => {
           </form>
         </div>
         
-        {/* Movie List Container */}
         <div className="overflow-y-auto h-[calc(850px)] max-h-[80vh] max-w-20xl">
           {loading && <p className="text-center">Loading...</p>}
           {error && <p className="text-red-500 text-center">{error}</p>}
@@ -170,44 +216,54 @@ const MovieSearch: React.FC = () => {
                   onClick={() => setHoveredMovieId(movie.id)}
                 />
                 <h2 className="text-xl font-bold mb-2">{movie.title}</h2>
-                {/* Movie Description with Scroll */}
                 <p className="text-sm text-gray-700 overflow-y-auto h-24 mb-2">{movie.overview}</p>
-
                 <p className="text-sm text-gray-700 font-bold">Release Date: {movie.release_date}</p>
 
-                <div className="absolute bottom-2 right-10 cursor-pointer">
-                <FaCommentDots className="text-2xl text-gray-500 hover:text-gray-800" />
+                <div className="flex items-center justify-between mt-2">
+                  <button onClick={() => toggleFavorite(movie)}>
+                    <FaHeart
+                      size={20}
+                      className={favorites.includes(movie.id) ? 'text-red-500' : 'text-gray-500'}
+                    />
+                  </button>
+                  {movie.trailerUrl && (
+                    <button
+                      className="text-gray-500 flex items-center space-x-1"
+                      onClick={() => window.open(movie.trailerUrl, '_blank')}
+                    >
+                      <FaPlay /> <span>Trailer</span>
+                    </button>
+                  )}
+                  <button
+                    onClick={() => {
+                      setActiveCommandMovieId(movie.id);
+                      fetchAllCommands(movie.id);
+                    }}
+                    className="text-gray-700 flex items-center space-x-1"
+                  >
+                    <FaCommentDots /> <span>Comments</span>
+                  </button>
                 </div>
 
-                {/* Heart Icon positioned at bottom-right */}
-                <div
-                  className="absolute bottom-2 right-2 cursor-pointer"
-                  onClick={() => toggleFavorite(movie)}
-                >
-                  <FaHeart
-                    className={`text-2xl ${favorites.includes(movie.id) ? 'text-red-500' : 'text-gray-400'}`}
-                  />
-                </div>
-                
-                {hoveredMovieId === movie.id && movie.trailerUrl && (
-                  <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
-                    <div className="w-full max-w-lg bg-white rounded p-4 relative">
-                      <iframe
-                        width="100%"
-                        height="315"
-                        src={movie.trailerUrl}
-                        title={`${movie.title} Trailer`}
-                        frameBorder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                        allowFullScreen
-                      ></iframe>
-                      <button
-                        onClick={() => setHoveredMovieId(null)}
-                        className="absolute top-2 right-2 text-white bg-red-500 p-1 rounded-full"
-                      >
-                        X
-                      </button>
-                    </div>
+                {activeCommandMovieId === movie.id && (
+                  <div className="p-4 mt-2 bg-gray-200 rounded-lg max-h-40 overflow-y-auto">
+                    {allCommands.map((cmd, index) => (
+                      <p key={index}>
+                        <strong>{cmd.username}:</strong> {cmd.command}
+                      </p>
+                    ))}
+                    <textarea
+                      value={newCommand}
+                      onChange={(e) => setNewCommand(e.target.value)}
+                      className="w-full p-2 rounded mt-2"
+                      placeholder="Leave a comment..."
+                    />
+                    <button
+                      onClick={handleCommandSubmit}
+                      className="bg-blue-500 text-white p-2 rounded mt-2"
+                    >
+                      Submit
+                    </button>
                   </div>
                 )}
               </div>

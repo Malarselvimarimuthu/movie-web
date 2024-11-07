@@ -16,7 +16,6 @@ const Favorites: React.FC = () => {
   const [favorites, setFavorites] = useState<FavoriteMovie[]>([]);
   const [error, setError] = useState('');
   
-  // Retrieve userId from local storage
   const userId = localStorage.getItem('userId');
 
   const fetchFavorites = async () => {
@@ -40,9 +39,6 @@ const Favorites: React.FC = () => {
     }
 
     try {
-      // Log the movieId to debug
-      console.log(`Removing favorite for movieId: ${movieId}`);
-
       const response = await axios.delete('http://localhost:8080/api/favourites', {
         params: { userId, movieId },
         headers: {
@@ -51,7 +47,7 @@ const Favorites: React.FC = () => {
       });
 
       if (response.status === 200) {
-        setFavorites(favorites.filter((movie) => movie.movieId !== movieId)); // Update to filter by movieId
+        setFavorites(favorites.filter((movie) => movie.movieId !== movieId));
       } else {
         setError('Failed to remove favorite');
       }
@@ -66,39 +62,33 @@ const Favorites: React.FC = () => {
   }, [userId]);
 
   return (
-    <div className="container mx-auto p-4 max-w-4xl">
-      <h1 className="text-3xl font-bold mb-4 text-center">Your Favorites</h1>
-      {error && <p className="text-red-500 text-center">{error}</p>}
+    <div className="container mx-auto p-6 md:p-8 max-w-7xl">
+      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Your Favorites</h1>
+      {/* {error && <p className="text-red-500 text-center mb-4">{error}</p>} */}
       {favorites.length === 0 ? (
-        <p className="text-center text-gray-500">No favorite movies found.</p>
+        <p className="text-center text-gray-500 text-5xl">No favourite movies found... </p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-          {favorites.map((movie) => {
-            // Log each movie object
-            console.log('Movie object:', movie);
-
-            return (
-              <div key={movie._id} className="bg-white p-4 rounded shadow flex flex-col justify-between h-full">
-                <img
-                  src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                  alt={movie.title}
-                  className="w-full h-64 object-cover mb-4 rounded"
-                />
-                <h2 className="text-xl font-bold mb-2">{movie.title}</h2>
-                <p className="text-sm text-gray-700 truncate">{movie.overview}</p>
-                <p className="text-sm text-gray-500">Release Date: {movie.release_date}</p>
-
-                <div className="mt-4 text-right">
-                  <button
-                    onClick={() => removeFavorite(movie.movieId)} // Update to use movie.movieId
-                    className="bg-red-500 text-white py-1 px-2 rounded-full flex items-center justify-center"
-                  >
-                    <FaTrash className="mr-1" /> Remove
-                  </button>
-                </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {favorites.map((movie) => (
+            <div key={movie._id} className="bg-white p-4 rounded-lg shadow-lg flex flex-col justify-between h-full">
+              <img
+                src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+                alt={movie.title}
+                className="w-full h-72 object-cover mb-4 rounded-lg"
+              />
+              <h2 className="text-xl font-semibold mb-2 text-gray-800">{movie.title}</h2>
+              <p className="text-sm text-gray-700 mb-2 line-clamp-3">{movie.overview}</p>
+              <p className="text-sm text-gray-500 mb-4">Release Date: {movie.release_date}</p>
+              <div className="mt-auto text-right">
+                <button
+                  onClick={() => removeFavorite(movie.movieId)}
+                  className="bg-red-500 hover:bg-red-600 text-white py-2 px-3 rounded-full flex items-center justify-center"
+                >
+                  <FaTrash className="mr-2" /> Remove
+                </button>
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       )}
     </div>
