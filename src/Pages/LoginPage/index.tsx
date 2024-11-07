@@ -3,6 +3,7 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import image from '../../assets/blurry-developing-photos-darkroom.jpg';
+import axiosInstance from '../../Utils/axiosInstance';
 
 type LoginValues = {
     email: string;

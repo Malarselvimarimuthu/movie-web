@@ -4,7 +4,7 @@ import { FaHeart, FaCommentDots, FaPlay } from 'react-icons/fa'; // Added FaPlay
 import languages from '../../data/languages';
 import genres from '../../data/genres';
 import image from '../../assets/optical-fiber-background.jpg';
-
+import axiosInstance from '../../Utils/axiosInstance';
 const TMDB_API_KEY = '82bf8e7015e539b6b3839975fa59392a';
 
 interface Movie {
@@ -47,7 +47,7 @@ const MovieSearch: React.FC = () => {
 
   const fetchUsername = async (userId: string) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/users/getname/${userId}`);
+      const response = await axiosInstance.get(`api/users/getname/${userId}`);
       setUsername(response.data.username);
     } catch (error) {
       console.error('Error fetching username:', error);
@@ -91,7 +91,7 @@ const MovieSearch: React.FC = () => {
   const fetchFavorites = async () => {
     if (!userId) return;
     try {
-      const response = await axios.get(`http://localhost:8080/api/favourites?userId=${userId}`);
+      const response = await axiosInstance.get(`api/favourites?userId=${userId}`);
       setFavorites(response.data.map((fav: any) => fav.movieId));
     } catch (error) {
       console.error('Error fetching favorites', error);
@@ -107,12 +107,12 @@ const MovieSearch: React.FC = () => {
       const isFavorite = favorites.includes(movie.id);
 
       if (isFavorite) {
-        await axios.delete(`http://localhost:8080/api/favourites`, {
+        await axiosInstance.delete(`api/favourites`, {
           params: { userId, movieId: movie.id },
         });
         setFavorites(favorites.filter((id) => id !== movie.id));
       } else {
-        await axios.post('http://localhost:8080/api/favourites', {
+        await axiosInstance.post('api/favourites', {
           userId,
           movieId: movie.id,
           title: movie.title,
@@ -129,7 +129,7 @@ const MovieSearch: React.FC = () => {
 
   const fetchAllCommands = async (movieId: number) => {
     try {
-      const response = await axios.get(`http://localhost:8080/api/feedback/getfeedback?movieId=${movieId}`);
+      const response = await axiosInstance.get(`api/feedback/getfeedback?movieId=${movieId}`);
       setAllCommands(response.data);
     } catch (error) {
       console.error('Error fetching commands:', error);
@@ -139,7 +139,7 @@ const MovieSearch: React.FC = () => {
   const handleCommandSubmit = async () => {
     if (!userId || !username || !newCommand || activeCommandMovieId === null) return;
     try {
-      await axios.post('http://localhost:8080/api/feedback/submit', {
+      await axiosInstance.post('api/feedback/submit', {
         userId,
         username,
         command: newCommand,

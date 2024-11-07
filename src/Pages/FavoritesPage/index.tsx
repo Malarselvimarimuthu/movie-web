@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import { FaTrash } from 'react-icons/fa';
+import axiosInstance from '../../Utils/axiosInstance';
 
 interface FavoriteMovie {
   _id: string;
@@ -25,7 +25,7 @@ const Favorites: React.FC = () => {
     }
 
     try {
-      const response = await axios.get(`http://localhost:8080/api/favourites?userId=${userId}`);
+      const response = await axiosInstance.get(`api/favourites?userId=${userId}`);
       setFavorites(response.data);
     } catch (error) {
       setError('Failed to fetch favorites');
@@ -39,7 +39,7 @@ const Favorites: React.FC = () => {
     }
 
     try {
-      const response = await axios.delete('http://localhost:8080/api/favourites', {
+      const response = await axiosInstance.delete('api/favourites', {
         params: { userId, movieId },
         headers: {
           'Content-Type': 'application/json',
