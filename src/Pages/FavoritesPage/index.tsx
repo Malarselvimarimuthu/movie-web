@@ -59,7 +59,7 @@ const Favorites: React.FC = () => {
 
   useEffect(() => {
     fetchFavorites();
-  }, []);
+  }, [fetchFavorites]);
 
   return (
     <div className="container mx-auto p-6 md:p-8 max-w-7xl">
