@@ -59,12 +59,12 @@ const Favorites: React.FC = () => {
 
   useEffect(() => {
     fetchFavorites();
-  }, [userId]);
+  }, []);
 
   return (
     <div className="container mx-auto p-6 md:p-8 max-w-7xl">
       <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">Your Favorites</h1>
-      {/* {error && <p className="text-red-500 text-center mb-4">{error}</p>} */}
+       {error && <p className="text-red-500 text-center mb-4">{error}</p>}
       {favorites.length === 0 ? (
         <p className="text-center text-gray-500 text-5xl">No favourite movies found... </p>
       ) : (
