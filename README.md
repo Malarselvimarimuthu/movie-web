@@ -1,6 +1,6 @@
 # 🎬 Movie Recommendation Website
 
-A full-stack Movie Web that allows users to search and explore movie information using the TMDB API. Built with a **React frontend** and **Node.js Express backend**, this project showcases API integration, UI responsiveness, and state management in a modular structure.
+A full-stack Movie Web that allows users to search and explore movie information using the TMDB API. Built with a **React frontend** and **Node.js Express backend**.
 
 ---
 
