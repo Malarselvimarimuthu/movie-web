@@ -41,3 +41,31 @@ A full-stack Movie Web that allows users to search and explore movie information
 ---
 
 # DEMO
+- ## LANDING PAGE
+![Screenshot 2025-03-31 135117](https://github.com/user-attachments/assets/39f2a68b-c88c-45c9-8ade-7db084a37a5a)
+
+- ## SEARCH BY NAME
+![Screenshot 2025-03-31 135301](https://github.com/user-attachments/assets/6aaac5e0-e611-4a86-be09-84d197ea9b67)
+
+- ## FILTER BY LANGUAGE
+![Screenshot 2025-03-31 135425](https://github.com/user-attachments/assets/2c2e8223-3540-4b4d-84ff-0974297855ad)
+
+- ## FILTER BY GENRE / MOOD
+![Screenshot 2025-03-31 135516](https://github.com/user-attachments/assets/ce3815cf-e5f7-4acd-9dcb-5dfdcd931069)
+
+- ## WATCH OFFICIAL TRAILER
+![Screenshot 2025-03-31 135556](https://github.com/user-attachments/assets/70d28460-b346-4a75-b2c9-3a014d5b221b)
+
+- ## VIEW / GIVE COMMENTS
+![Screenshot 2025-03-31 135659](https://github.com/user-attachments/assets/56ae58d5-ec1f-4de1-9cd8-d78f5afa4fbb)
+
+- ## MAINTAIN FAVOURITES LIST
+![Screenshot 2025-03-31 135731](https://github.com/user-attachments/assets/7ed6daca-62b0-4442-9fda-aa657e01d416)
+
+
+
+
+
+
+
+
