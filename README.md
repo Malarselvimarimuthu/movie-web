@@ -41,6 +41,19 @@ A full-stack Movie Web that allows users to search and explore movie information
 ---
 
 # DEMO
+# NON-AUTH USER
+
+- ## PREVIEW /SEARCH /FILTER MOVIES WITHOUT AUTH
+  ![Screenshot 2025-03-31 141316](https://github.com/user-attachments/assets/dae37738-1428-48e7-87ee-7cdbf3c923b3)
+
+- ## ACCESS FAVOURITES AS AUTH USER
+![Screenshot 2025-03-31 141228](https://github.com/user-attachments/assets/207c3a19-f5ce-4d94-852e-f2dd966f667f)
+
+
+- ## LOGIN PAGE
+![Screenshot 2025-03-31 141151](https://github.com/user-attachments/assets/f24a3cff-04db-46b4-8e3c-0b70e9c46c61)
+
+# AUTH USER
 - ## LANDING PAGE
 ![Screenshot 2025-03-31 135117](https://github.com/user-attachments/assets/39f2a68b-c88c-45c9-8ade-7db084a37a5a)
 
